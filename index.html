@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Examen Académico Profesional</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: #000; margin: 0; color: white; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 500px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: #121212; position: relative; }
+        .content { padding: 20px; flex: 1; overflow-y: auto; }
+        .step { display: none; animation: fadeIn 0.3s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        img { width: 100%; height: 150px; object-fit: contain; border-radius: 15px; margin-bottom: 15px; background: #1a1a1a; display: none; }
+        .box { background: #1e1e1e; padding: 15px; border-left: 5px solid #007bff; border-radius: 10px; margin-bottom: 20px; }
+        .btn { background: #007bff; color: #fff; border: none; padding: 16px; border-radius: 14px; width: 100%; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 1rem; }
+        .check-item { background: #252525; border: 1px solid #444; color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 10px; display: flex; align-items: center; cursor: pointer; }
+        .check-item input { margin-right: 15px; transform: scale(1.5); cursor: pointer; }
+        .btn-opt { background: #252525; border: 1px solid #444; color: white; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 10px; text-align: left; cursor: pointer; transition: 0.3s; display: block; }
+        .v-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .v-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; }
+        #v-feed { font-size: 0.8rem; text-align: center; margin-bottom: 10px; padding: 8px; border-radius: 8px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .cat { background: #1a1a1a; padding: 20px 5px; border-radius: 15px; border: 1px solid #333; text-align: center; cursor: pointer; }
+        .promo-text { font-size: 0.9rem; line-height: 1.4; color: #e0e0e0; margin-bottom: 15px; }
+        .promo-list { list-style: none; padding: 0; margin: 10px 0; }
+        .promo-list li { margin-bottom: 8px; font-size: 0.85rem; }
+        .btn-regresar { background: #444; margin-bottom: 15px; }
+        .stars { font-size: 2.2rem; margin: 10px 0; cursor: pointer; color: #444; }
+        .stars span.gold { color: #ffc107; text-shadow: 0 0 5px rgba(255,193,7,0.5); }
+        .stats-display { font-size: 0.9rem; color: #ffc107; margin-bottom: 5px; font-weight: bold; text-align: center; }
+        .input-info { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #252525; color: white; margin-bottom: 15px; }
+        .calc-container { background: white; color: #333; padding: 20px; border-radius: 15px; margin-top: 10px; }
+        .calc-input-box { display: flex; flex-direction: column; margin-bottom: 10px; }
+        .calc-input-box label { font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #444; }
+        .calc-input-box input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; color: #333; }
+        .desglose-lista { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; border-left: 5px solid #1a73e8; }
+        .item-lista { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ddd; font-size: 14px; }
+        .total-pago { font-weight: bold; color: #1a73e8; border-top: 2px solid #1a73e8; margin-top: 10px; padding-top: 5px; font-size: 18px; }
+    </style>
+</head>
+<body onload="initApp()">
+
+<div class="app-container">
+    <div class="content">
+        <div id="s1" class="step active">
+            <div class="box"><h3 style="margin:0; color:#007bff">¡Hola, comunidad! 🎓</h3></div>
+            <div id="welcome-stats" class="stats-display" style="background: #1e1e1e; padding: 10px; border-radius: 10px; margin-bottom: 15px;">Cargando calificación...</div>
+            <div class="promo-text">
+                <p><b>¿Necesitas asesoría con tus materias o proyectos?</b></p>
+                <p>Somos un grupo de 3 personas de distintas universidades, egresados de maestría en distintas disciplinas. Ofrecemos nuestra guía para ayudarte a dominar esos temas difíciles.</p>
+                <ul class="promo-list">
+                    <li>✅ Administración, RH y Psicología.</li>
+                    <li>✅ Ingeniería Industrial y Procesos.</li>
+                    <li>✅ Contabilidad y Finanzas.</li>
+                    <li>✅ Proyectos y Simplificación de actividades.</li>
+                </ul>
+                <p>💰 <b>Costos accesibles:</b> el fin de este proyecto es recaudar para nuestra titulacion.</p>
+            </div>
+            <button class="btn" onclick="go(2)">VER MATERIAS</button>
+        </div>
+
+        <div id="s2" class="step">
+            <button class="btn btn-regresar" onclick="go(1)">⬅️ REGRESAR</button>
+            <div class="box"><h2>Selecciona Materia</h2></div>
+            <div class="grid" id="menu"></div>
+        </div>
+
+        <div id="s-paginas" class="step">
+            <button class="btn btn-regresar" onclick="go(2)">⬅️ REGRESAR A MATERIAS</button>
+            <div class="box"><h3>Páginas Web</h3></div>
+            <button class="btn" onclick="window.location.href='https://gv382637-ctrl.github.io/RESTRIGCIONES.1/'">Cálculo de restricciones</button>
+            <button class="btn" onclick="window.location.href='https://quinielas580.github.io/quiniela-la-perrona-jornada1-liga-mx2026/'">quiniela web</button>
+        </div>
+
+        <div id="s-nominas" class="step">
+            <button class="btn btn-regresar" onclick="go(2)">⬅️ REGRESAR A MATERIAS</button>
+            <div class="calc-container">
+                <div style="text-align: center; margin-bottom: 15px;"><h1 style="color: #1a73e8; margin: 5px 0; font-size: 22px;">EMPRESA VILLANUEVA</h1></div>
+                <div class="calc-input-box"><label>No. de Nómina</label><input type="text" id="v-numNomina" placeholder="Ej. 687"></div>
+                <div class="calc-input-box"><label>Nombre del Empleado</label><input type="text" id="v-nombre" placeholder="Nombre completo"></div>
+                <div class="calc-input-box"><label>Sueldo Diario ($)</label><input type="number" id="v-sd" step="0.01"></div>
+                <div class="calc-input-box"><label>Días Laborados</label><input type="number" id="v-dias" value="6"></div>
+                <div class="calc-input-box"><label>Fecha de Pago</label><input type="date" id="v-fechaPago"></div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn" style="background: #1a73e8; padding: 12px; flex: 1;" onclick="calcularVillanueva()">CALCULAR</button>
+                    <button class="btn" style="background: #d93025; padding: 12px; flex: 1;" onclick="descargarVillanueva()">PDF</button>
+                </div>
+                <div id="v-desglose" class="desglose-lista">
+                    <div class="item-lista"><span>Base Gravable:</span> <span id="v-l-base"></span></div>
+                    <div class="item-lista" style="color:#d93025"><span>ISR:</span> <span id="v-l-isr"></span></div>
+                    <div class="item-lista" style="color:#d93025"><span>IMSS:</span> <span id="v-l-imss"></span></div>
+                    <div class="item-lista total-pago"><span>PAGO NETO:</span> <span id="v-l-neto"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="s3" class="step">
+            <button class="btn btn-regresar" onclick="go(2)">⬅️ REGRESAR A MATERIAS</button>
+            <h4 id="q-head" style="color:#007bff; margin:0 0 10px 0"></h4>
+            <img id="q-img" src="">
+            <div id="v-ui" style="display:none">
+                <div class="v-box">
+                    <button class="v-btn" style="background:#444" onclick="hablar()">🔊 Oír</button>
+                    <button class="v-btn" style="background:#28a745" onclick="escuchar()">🎤 Pronunciar</button>
+                </div>
+                <div id="v-feed"></div>
+            </div>
+            <div class="box"><h2 id="q-txt" style="font-size:1.1rem"></h2></div>
+            <div id="options"></div>
+            <div id="fb-box" style="display:none; text-align:center;">
+                <p id="fb-txt" style="font-weight:bold"></p>
+                <button class="btn" onclick="sig()">Siguiente</button>
+            </div>
+        </div>
+
+        <div id="s4" class="step">
+            <div style="background:#007bff; padding:25px; border-radius:20px; text-align:center">
+                <h3 style="margin:0">Resultado</h3>
+                <h1 id="res-txt" style="font-size:4rem; margin:0">0</h1>
+                <p>de 10 aciertos</p>
+            </div>
+            <button class="btn" style="margin-top:20px; background:#333" onclick="location.reload()">Reiniciar</button>
+            <button class="btn" style="background:#6c757d" onclick="document.getElementById('rating-area').style.display='block'; showStats();">Calificar mi página</button>
+            
+            <div id="rating-area" style="display:none; text-align:center; margin-top:20px;">
+                <div id="stats-stars" class="stats-display"></div>
+                <div class="stars" id="star-box">
+                    <span onclick="setRate(1)">★</span><span onclick="setRate(2)">★</span><span onclick="setRate(3)">★</span><span onclick="setRate(4)">★</span><span onclick="setRate(5)">★</span>
+                </div>
+                <button class="btn" style="background:#28a745" onclick="go('info')">Solicitar Información</button>
+            </div>
+        </div>
+
+        <div id="s-info" class="step">
+            <button class="btn btn-regresar" onclick="go(4)">⬅️ REGRESAR</button>
+            <div class="box"><h3>Solicitar Información</h3></div>
+            <input type="tel" id="user-phone" class="input-info" placeholder="Tu número de teléfono">
+            <div id="info-options">
+                <label class="check-item"><input type="checkbox" name="tema" value="Ayuda tareas/proyectos"> Opción 1: Ayudas para tareas</label>
+                <label class="check-item"><input type="checkbox" name="tema" value="Método estudio examen"> Opción 2: Método estudio</label>
+                <label class="check-item"><input type="checkbox" name="tema" value="Curso Excel"> Opción 3: Curso Excel</label>
+                <label class="check-item"><input type="checkbox" name="tema" value="App de Inglés"> Opción 4: App Inglés</label>
+                <label class="check-item"><input type="checkbox" name="tema" value="Simplificación actividades"> Opción 5: Simplificación laboral</label>
+                <label class="check-item"><input type="checkbox" name="tema" value="Desarrollo página web/negocio"> Opción 6: Desarrollo web o negocio</label>
+            </div>
+            <button class="btn" style="background:#17a2b8;" onclick="compartirWhatsApp()">COMPARTIR CON AMIGOS</button>
+            <button class="btn" style="background:#28a745;" onclick="enviarVariasRespuestas()">SOLICITAR POR WHATSAPP</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL DEL SCRIPT EN POSICIÓN GLOBAL PARA QUE FUNCIONE SIEMPRE
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzSyZd3eI-1aE3CGXL4szWXlIixF1q-4ZTpGx3CGBgJ84pvyx-hlHE5RalVtemYn2hH/exec';
+
+    const db = {
+        ingles: [
+            {q:"Identify the correct location based on the image: Where are these people currently located?", img:"PARKE.png", opt:["In the park","In the pool","In the gym"], c:0},
+            {q:"According to the action shown in the picture: What are the people doing right now?", img:"CORRIENDO.png", opt:["Sleeping","Running","Reading"], c:1},
+            {q:"Count the individuals present in the scene: How many people can you see?", img:"COMIENDO.png", opt:["Two","Three","Five"], c:2},
+            {q:"Based on her uniform and tools: What is the specific profession of this woman?", img:"ENFERMERA.png", opt:["Chef","Nurse","Pilot"], c:1},
+            {q:"Analyze the context of the image: What activity is he performing at this moment?", img:"ESTUDIANDO.png", opt:["Studying","Cooking","Driving"], c:0},
+            {q:"Observe the setting and the person: Who is she and what is her role in this environment?", img:"MAESTRA.png", opt:["Singer","Student","Teacher"], c:2},
+            {q:"Visual identification: What is the primary color of the car shown in the image?", img:"COLORES.png", opt:["Red","Blue","Grey"], c:0},
+            {q:"Mathematical counting exercise: How many apples are displayed in the picture?", img:"NUMEROS.png", opt:["One","Four","Ten"], c:1},
+            {q:"Time measurement: According to the analog clock, what specific time is it showing?", img:"RELOJ.png", opt:["1:00","3:00","9:00"], c:1},
+            {q:"Activity recognition: Which verb best describes what they are doing in the photo?", img:"COMIENDO.png", opt:["Eating","Walking","Crying"], c:0}
+        ],
+        excel: [
+            {q:"¿Cuál es el símbolo obligatorio con el que se debe iniciar cualquier fórmula o función para que Excel realice una operación matemática?", opt:["Signo Mas (+)","Signo Igual (=)","Signo Asterisco (*)"], c:1},
+            {q:"¿Qué función se utiliza específicamente para sumar todos los números contenidos en un rango de celdas seleccionado?", opt:["=SUMA","=ADD","=TOTAL"], c:0},
+            {q:"¿Qué símbolo se utiliza para crear una referencia absoluta (fijar celda) y evitar que cambie al copiar una fórmula?", opt:["Signo de Pesos ($)","Signo de Gato (#)","Signo de Ampersand (&)"], c:0},
+            {q:"¿Cuál es la extensión de archivo estándar que utiliza Microsoft Excel para guardar libros de trabajo modernos?", opt:[".xlsx",".docx",".txt"], c:0},
+            {q:"¿Cómo se le denomina técnicamente a la intersección o cruce entre una fila y una columna en una hoja de cálculo?", opt:["Rango de datos","Celda","Hoja de trabajo"], c:1},
+            {q:"¿Cuál es la combinación de teclas (atajo) utilizada para copiar el contenido de una celda seleccionada al portapapeles?", opt:["Ctrl + C","Ctrl + V","Ctrl + Z"], c:0},
+            {q:"¿Qué función se debe emplear para obtener la media aritmética de un grupo de valores numéricos en un rango?", opt:["=MEDIA","=PROMEDIO","=SUM"], c:1},
+            {q:"¿Qué acción permite unir dos o más celdas adyacentes para convertirlas en una sola celda de mayor tamaño?", opt:["Dividir celdas","Combinar celdas","Mover contenido"], c:1},
+            {q:"En la estructura de la hoja de cálculo, ¿cómo se identifican visualmente las filas (horizontalmente)?", opt:["Por Números","Por Letras","Por Símbolos"], c:0},
+            {q:"En la estructura de la hoja de cálculo, ¿cómo se identifican visualmente las columnas (verticalmente)?", opt:["Por Números","Por Letras","Por Colores"], c:1}
+        ],
+        admin: [
+            {q:"Dentro del proceso administrativo, ¿cuál es la fase inicial donde se definen objetivos, estrategias y planes de acción?", opt:["Control","Planeación","Dirección"], c:1},
+            {q:"¿Qué significan las siglas de la herramienta de análisis estratégico FODA, utilizada para evaluar la situación de una empresa?", opt:["Fortalezas, Oportunidades, Debilidades y Amenazas","Factores, Operaciones, Datos y Análisis","Finanzas, Objetivos, Dirección y Alcance"], c:0},
+            {q:"¿Quién es considerado el padre de la Administración Clásica por sistematizar el comportamiento gerencial y los 14 principios?", opt:["Frederick Taylor","Henri Fayol","Abraham Maslow"], c:1},
+            {q:"¿A qué se refiere el departamento de Recursos Humanos (RH) dentro de la estructura organizacional?", opt:["Gestión de Capital Financiero","Gestión del Capital Humano y Personal","Gestión de Maquinaria"], c:1},
+            {q:"¿Qué concepto define la 'razón de ser' de una organización, explicando su propósito y función actual en el mercado?", opt:["Visión Empresarial","Misión Organizacional","Logotipo"], c:1},
+            {q:"¿Qué es un organigrama y para qué sirve dentro de una empresa?", opt:["Es un gráfico que representa la estructura jerárquica y áreas","Es un mapa para encontrar las oficinas","Es un dibujo de los empleados"], c:0},
+            {q:"¿Qué mide el concepto de 'Eficiencia' en la administración de procesos productivos?", opt:["El uso óptimo de los recursos para lograr un fin","El aumento de gastos innecesarios","La cantidad total de ventas"], c:0},
+            {q:"¿A qué hace referencia el concepto de 'Marketing Mix' utilizado para la estrategia de posicionamiento?", opt:["Las 4 Ps (Producto, Precio, Plaza, Promoción)","Las 5 Ss (Orden y limpieza)","Normas ISO de calidad"], c:0},
+            {q:"¿Cuál es la función principal de la fase de 'Control' en el proceso administrativo?", opt:["Medir resultados y corregir desviaciones","Comprar materia prima","Vender productos al cliente"], c:0},
+            {q:"¿Qué característica principal distingue a un Líder efectivo dentro de un equipo de trabajo?", opt:["Capacidad de mandar por autoridad","Capacidad de inspirar e influir positivamente","Capacidad de dudar de sus metas"], c:1}
+        ],
+        industrial: [
+            {q:"¿Qué es la metodología japonesa 5S y cuál es su objetivo principal en el área de trabajo?", opt:["Sistema para el orden, limpieza y estandarización","Sistema para aumentar las ventas mensuales","Sistema de producción masiva"], c:0},
+            {q:"¿En qué consiste el sistema de producción 'Just in Time' (Justo a Tiempo)?", opt:["Mantener mucho stock en bodega","Producir solo lo necesario en el momento preciso","Entregar pedidos con retraso"], c:1},
+            {q:"¿Qué significa el concepto de mejora continua conocido como 'Kaizen'?", opt:["Cambio a mejor mediante pasos pequeños y constantes","Parar la producción totalmente","Exportar productos a otros países"], c:0},
+            {q:"¿A qué se refiere el término 'Cuello de Botella' dentro de una línea de producción?", opt:["A la fase más fluida del proceso","A la fase que limita la capacidad total por ser la más lenta","A la entrada de materia prima"], c:1},
+            {q:"¿Qué es un KPI (Key Performance Indicator) y para qué se utiliza en la industria?", opt:["Un indicador clave de desempeño para medir procesos","Una pieza de repuesto para máquinas","Un operario especializado"], c:0},
+            {q:"¿Cuál es el objetivo primordial de la metodología 'Lean Manufacturing'?", opt:["Eliminar desperdicios que no agregan valor","Aumentar los costos de fabricación","Hacer los procesos más lentos"], c:0},
+            {q:"¿Qué es la Ergonomía y qué mide en el entorno laboral?", opt:["El diseño del lugar de trabajo para adaptarse a la postura corporal","El color de las paredes de la oficina","El peso total de los productos fabricados"], c:0},
+            {q:"¿Qué mide la metodología 'Six Sigma' en términos de calidad de productos?", opt:["El nivel de defectos, buscando casi la perfección","El nivel de ventas anuales","El nivel de ruido en la planta"], c:0},
+            {q:"¿Qué establece el Principio de Pareto (Regla del 80/20) en el análisis de problemas industriales?", opt:["El 80% de los efectos provienen del 20% de las causas","La repartición equitativa 50/50","Que solo el 10% de las piezas fallan"], c:0},
+            {q:"¿Qué significan las siglas EPP en seguridad industrial?", opt:["Equipo de Protección Personal","Energía de Procesos Primarios","Entrega de Pagos Puntuales"], c:0}
+        ],
+        conta: [
+            {q:"En contabilidad, ¿qué representa el concepto de 'Activo'?", opt:["Bienes y derechos propiedad de la empresa","Deudas y obligaciones pendientes","Gastos de administración"], c:0},
+            {q:"¿Qué representa el concepto de 'Pasivo' en el balance general?", opt:["Derechos de cobro","Obligaciones y deudas de la entidad","Capital aportado por socios"], c:1},
+            {q:"¿Qué es el 'Capital Contable' y cómo se compone?", opt:["Aportaciones de socios más utilidades retenidas","Total de deudas con el banco","Venta total del mes"], c:0},
+            {q:"¿Cuál es la tasa general del Impuesto al Valor Agregado (IVA) vigente en México?", opt:["10%","15%","16%"], c:2},
+            {q:"¿Cómo se define técnicamente la 'Utilidad' en un ejercicio contable?", opt:["Es la ganancia obtenida cuando los ingresos superan a los egresos","Es la pérdida total del dinero","Es el gasto de operación"], c:0},
+            {q:"¿Qué es el Balance General y para qué sirve?", opt:["Un estado financiero que muestra la situación de activos, pasivos y capital","Un tipo de cheque bancario","Una nota de remisión"], c:0},
+            {q:"¿Qué significa realizar un 'Cargo' en una cuenta contable?", opt:["Registrar una cantidad en el lado izquierdo (Debe)","Registrar una cantidad en el lado derecho (Haber)","Guardar dinero en la caja"], c:0},
+            {q:"¿Qué significa realizar un 'Abono' en una cuenta contable?", opt:["Registrar una cantidad en el lado izquierdo (Debe)","Registrar una cantidad en el lado derecho (Haber)","Pedir un préstamo al banco"], c:1},
+            {q:"¿Cuál es la función principal de un Auditor contable?", opt:["Revisar y verificar la exactitud de los estados financieros","Vender productos a los clientes","Limpiar las oficinas"], c:0},
+            {q:"¿Qué significan las siglas ISR y sobre qué se aplica?", opt:["Impuesto Sobre la Renta (sobre las ganancias)","Impuesto sobre Ventas","Impuesto sobre Compras"], c:0}
+        ],
+        psico: [
+            {q:"¿Quién es el fundador del Psicoanálisis y propuso la teoría del inconsciente?", opt:["Sigmund Freud","B.F. Skinner","Max Wertheimer"], c:0},
+            {q:"¿Qué representa la Pirámide de Maslow en la psicología humanista?", opt:["La jerarquía de las necesidades humanas","Una caja de experimentos conductuales","Un círculo de apoyo social"], c:0},
+            {q:"¿Cómo se define técnicamente una 'Fobia'?", opt:["Un miedo intenso e irracional hacia algo específico","Un gusto exagerado por las alturas","Un sentimiento de amor profundo"], c:0},
+            {q:"¿Qué es la 'Empatía' y para qué sirve en las relaciones humanas?", opt:["La capacidad de ponerse en el lugar de la otra persona","La acción de juzgar a los demás rápidamente","La capacidad de reírse de los problemas"], c:0},
+            {q:"¿Qué significa el término 'Resiliencia' en el comportamiento humano?", opt:["La capacidad de superar y adaptarse a situaciones traumáticas","El olvido total de los recuerdos negativos","Sentir enojo constante por el pasado"], c:0},
+            {q:"¿Qué es el Condicionamiento Clásico, propuesto por Iván Pávlov?", opt:["Aprendizaje mediante asociación de estímulos","El estudio de los sueños","Un tipo de terapia grupal"], c:0},
+            {q:"¿A qué se refiere el término 'Inteligencia Emocional'?", opt:["Capacidad de reconocer y gestionar emociones propias y ajenas","Capacidad de resolver problemas matemáticos rápido","Capacidad de leer mentes"], c:0},
+            {q:"¿Cuál es el objeto de estudio principal de la Psicología Cognitiva?", opt:["Los procesos mentales como memoria, lenguaje y percepción","El comportamiento de los animales en la selva","La estructura de los huesos del cráneo"], c:0},
+            {q:"¿Qué define al trastorno de Ansiedad según la psicología clínica?", opt:["Preocupación excesiva y persistente que interfiere con la vida","Sentirse feliz todo el tiempo","Tener mucha hambre por las noches"], c:0},
+            {q:"¿Qué es el 'Rapport' en el contexto de una entrevista psicológica?", opt:["Establecer una relación de confianza y armonía con el paciente","Hacer un examen de sangre","Criticar las acciones del paciente"], c:0}
+        ]
+    };
+
+    let catA='', idx=0, pts=0;
+    const mats = { ingles:'🔤 Inglés', excel:'📊 Excel', admin:'💼 Admin', industrial:'⚙️ Industrial', conta:'💰 Conta', psico:'🧠 Psico', nominas:'📄 Nóminas', paginas:'🌐 Páginas Web' };
+    
+    function initApp() {
+        const grid = document.getElementById('menu');
+        Object.keys(mats).forEach(m => {
+            let d = document.createElement('div'); d.className = 'cat'; d.innerHTML = `<b>${mats[m]}</b>`;
+            d.onclick = () => { 
+                if(m === 'nominas') go('nominas'); 
+                else if(m === 'paginas') go('paginas');
+                else { catA=m; idx=0; pts=0; go(3); cargar(); } 
+            };
+            grid.appendChild(d);
+        });
+        showStats();
+    }
+
+    function go(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        const target = (typeof n === 'string') ? 's-'+n : 's'+n;
+        document.getElementById(target).classList.add('active');
+        if(n === 1) showStats();
+    }
+
+    function cargar() {
+        let q = db[catA][idx];
+        document.getElementById('q-head').innerText = `${catA.toUpperCase()} - ${idx+1}/${db[catA].length}`;
+        document.getElementById('q-txt').innerText = q.q;
+        document.getElementById('fb-box').style.display = 'none';
+        let img = document.getElementById('q-img');
+        if(q.img) { img.src = q.img; img.style.display = 'block'; } else { img.style.display = 'none'; }
+        document.getElementById('v-ui').style.display = (catA === 'ingles') ? 'block' : 'none';
+        let opts = document.getElementById('options');
+        opts.innerHTML = '';
+        q.opt.forEach((o, i) => {
+            let b = document.createElement('button'); b.className = 'btn-opt'; b.id = 'opt-' + i; b.innerText = o;
+            b.onclick = () => validar(i); opts.appendChild(b);
+        });
+    }
+
+    function validar(i) {
+        let q = db[catA][idx];
+        document.querySelectorAll('.btn-opt').forEach(b => b.disabled = true);
+        document.getElementById('fb-box').style.display = 'block';
+        let sel = document.getElementById('opt-' + i);
+        let cor = document.getElementById('opt-' + q.c);
+        if(i === q.c) { pts++; sel.style.background = "#28a745"; document.getElementById('fb-txt').innerText="¡CORRECTO! ✅"; }
+        else { sel.style.background = "#dc3545"; cor.style.background = "#28a745"; document.getElementById('fb-txt').innerText="INCORRECTO ❌"; }
+    }
+
+    function sig() { idx++; if(idx < db[catA].length) cargar(); else { document.getElementById('res-txt').innerText = pts; go(4); } }
+
+    function enviarVariasRespuestas() {
+        const tel = document.getElementById('user-phone').value;
+        const boxes = document.querySelectorAll('input[name="tema"]:checked');
+        if(!tel || boxes.length === 0) return alert("Por favor ingresa tu teléfono y selecciona al menos un tema.");
+        let temasElegidos = Array.from(boxes).map(cb => cb.value).join(", ");
+        
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({telefono: tel, interes: temasElegidos, fecha: new Date().toLocaleString()}) })
+        .then(() => {
+            window.open(`https://wa.me/4423971141?text=${encodeURIComponent("Hola, solicito información sobre: " + temasElegidos + ". Contacto: " + tel)}`, '_blank');
+            alert("Solicitud enviada.");
+            go(1);
+        });
+    }
+
+    function compartirWhatsApp() {
+        const mensaje = `¡Hola! Te comparto esta página para asesorías académicas: ${window.location.href}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+    }
+
+    function calcularVillanueva() {
+        const sd = parseFloat(document.getElementById('v-sd').value);
+        const dias = parseFloat(document.getElementById('v-dias').value);
+        if(!sd || !dias) return alert("Llena sueldo y días.");
+        const base = (sd * dias) + ((sd / 6) * dias);
+        document.getElementById('v-l-base').innerText = `$${base.toFixed(2)}`;
+        document.getElementById('v-l-isr').innerText = `$${(base * 0.09).toFixed(2)}`;
+        document.getElementById('v-l-imss').innerText = `$${(base * 0.03).toFixed(2)}`;
+        document.getElementById('v-l-neto').innerText = `$${(base * 0.88).toFixed(2)}`;
+        document.getElementById('v-desglose').style.display = 'block';
+    }
+
+    function descargarVillanueva() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const n = document.getElementById('v-nombre').value || "Empleado";
+        doc.setFontSize(18); doc.text("RECIBO - EMPRESA VILLANUEVA", 20, 20);
+        doc.autoTable({ startY: 40, head: [['Concepto', 'Monto']], body: [['Sueldo Base', document.getElementById('v-l-base').innerText], ['Retención ISR', document.getElementById('v-l-isr').innerText], ['Retención IMSS', document.getElementById('v-l-imss').innerText], ['PAGO NETO', document.getElementById('v-l-neto').innerText]] });
+        doc.save(`Recibo_${n}.pdf`);
+    }
+
+    let haVotado = false;
+    function setRate(n) {
+        if(!haVotado) {
+            let t = parseFloat(localStorage.getItem('totalS') || 0) + n;
+            let c = parseInt(localStorage.getItem('countS') || 0) + 1;
+            localStorage.setItem('totalS', t); 
+            localStorage.setItem('countS', c);
+            haVotado = true;
+        }
+        document.querySelectorAll('#star-box span').forEach((s, i) => s.className = (i < n) ? 'gold' : '');
+        showStats();
+    }
+
+    function showStats() {
+        let t = parseFloat(localStorage.getItem('totalS') || 0);
+        let c = parseInt(localStorage.getItem('countS') || 0);
+        let avg = c === 0 ? 0 : (t / c).toFixed(1);
+        let starsStr = "";
+        for(let i=1; i<=5; i++) starsStr += (i <= Math.round(avg)) ? "★" : "☆";
+        const textoFinal = `Calificación: ${starsStr} ${avg} (${c} votos)`;
+        if(document.getElementById('stats-stars')) document.getElementById('stats-stars').innerText = textoFinal;
+        if(document.getElementById('welcome-stats')) document.getElementById('welcome-stats').innerText = `⭐ ${textoFinal}`;
+    }
+
+    function hablar() { let m = new SpeechSynthesisUtterance(db[catA][idx].q); m.lang = 'en-US'; window.speechSynthesis.speak(m); }
+    function escuchar() { 
+        const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(!Rec) return;
+        const r = new Rec(); r.lang = 'en-US';
+        r.onstart = () => document.getElementById('v-feed').innerText = "Escuchando...";
+        r.onresult = (e) => document.getElementById('v-feed').innerText = `Dijiste: "${e.results[0][0].transcript}"`;
+        r.start();
+    }
+</script>
+</body>
+</html>
